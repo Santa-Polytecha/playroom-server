@@ -1,0 +1,20 @@
+{
+  "name": "playroom-app",
+  "version": "1.0.0",
+  "description": "A room based project",
+  "license": "MIT",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build -prod",
+    "test": "ng test",
+    "lint": "ng lint",
+    "e2e": "ng e2e"
+  },
+  "private": true,
+  "dependencies": {
+    "node-env-file": "^0.1.8",
+    "socket.io": "^2.3.0"
+  },
+  "author": "Lea, Val, Antoine"
+}
