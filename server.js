@@ -4,7 +4,7 @@ const env = require("node-env-file");
 
 env("./.env");
 
-const PORT = process.env.ENV_PORT || 8080;
+const PORT = process.env.ENV_PORT || 3000;
 
 /**
  * Create HTTP server.
