@@ -76,7 +76,7 @@ typings/
 # nuxt.js build output
 .nuxt
 
-# react / gatsby 
+# react / gatsby
 public/
 
 # vuepress build output
@@ -101,6 +101,7 @@ public/
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
+# End of https://www.gitignore.io/api/node,visualstudiocode
 
-### PHPStorm
+## ignore .idea folder (for jetbrain products)
 .idea/*
