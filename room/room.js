@@ -43,7 +43,7 @@ class Room {
     }
 
     removeUser(user){
-        console.log("User entered the room " + this.name);
+        console.log("User removed from the room " + this.name);
         this.users.splice(this.users.indexOf(user),1);
         const broadcastMessage = new Message(user, "userLeave", this.users);
         this.namespace.emit(broadcastMessage.toJsonString());
