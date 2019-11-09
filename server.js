@@ -17,10 +17,11 @@ const server = http.createServer(function (req, res) {
 });
 
 server.timeout = 6000000;
-
-const io = require('./socket.io.js').initialize(server);
+const io = require('./socket.io.js');
 
 server.listen(PORT, function() {
+    io.initialize(server);
+
     console.log(`Listening on port ${PORT}...`)
     console.log("           __________.__");
     console.log("           \\______   \\  | _____  ___.__._______  ____   ____   _____");
@@ -28,4 +29,4 @@ server.listen(PORT, function() {
     console.log("            |    |   |  |__\/ __ \\\\___  | |  | \\(  <_> |  <_> )  Y Y  \\")
     console.log("            |____|   |____(____  / ____| |__|   \\____/ \\____/|__|_|  /")
     console.log("                               \\/\\/                                \\\/ ")
-})
+});
