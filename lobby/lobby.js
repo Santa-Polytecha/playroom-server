@@ -2,10 +2,11 @@ const Room = require('../room/room.js');
 const MessageHandler = require('../messages/message-handling.js');
 const RoomNameGenerator = require('../room/room-name-generator.js');
 const Rooms = require('../room/rooms.js');
+const colors = require('../tools/consoleColors.js');
 
 exports.listenForRoomCreation = function (io) {
     io.on('connection', (socket) => {
-        console.log("New user in Lobby.");
+        console.log(colors.consoleColors.InfoColor, 'New user in Lobby.');
 
         socket.on('createRoom', (msg) => {
             try {

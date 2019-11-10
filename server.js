@@ -1,6 +1,7 @@
 // Get dependencies
 const http = require('http');
 const env = require("node-env-file");
+const colors = require('./tools/consoleColors.js');
 
 env("./.env");
 
@@ -22,11 +23,11 @@ const io = require('./socket.io.js');
 server.listen(PORT, function() {
     io.initialize(server);
 
-    console.log(`Listening on port ${PORT}...`)
-    console.log("           __________.__");
-    console.log("           \\______   \\  | _____  ___.__._______  ____   ____   _____");
-    console.log("            |     ___\/  | \\__  \\<   |  |\\_  __ \\\/  _ \\ \/  _ \\ /     \\")
-    console.log("            |    |   |  |__\/ __ \\\\___  | |  | \\(  <_> |  <_> )  Y Y  \\")
-    console.log("            |____|   |____(____  / ____| |__|   \\____/ \\____/|__|_|  /")
-    console.log("                               \\/\\/                                \\\/ ")
+    console.log(colors.consoleColors.ServerColor, `Listening on port ${PORT}...`)
+    console.log(colors.consoleColors.ServerColor, "           __________.__");
+    console.log(colors.consoleColors.ServerColor, "           \\______   \\  | _____  ___.__._______  ____   ____   _____");
+    console.log(colors.consoleColors.ServerColor, "            |     ___\/  | \\__  \\<   |  |\\_  __ \\\/  _ \\ \/  _ \\ /     \\")
+    console.log(colors.consoleColors.ServerColor, "            |    |   |  |__\/ __ \\\\___  | |  | \\(  <_> |  <_> )  Y Y  \\")
+    console.log(colors.consoleColors.ServerColor, "            |____|   |____(____  / ____| |__|   \\____/ \\____/|__|_|  /")
+    console.log(colors.consoleColors.ServerColor, "                               \\/\\/                                \\\/ ")
 });

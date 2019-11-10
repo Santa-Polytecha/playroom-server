@@ -1,5 +1,6 @@
 const Message = require('../messages/message.js');
 const MessageHandler = require("../messages/message-handling");
+const colors = require('../tools/consoleColors.js');
 
 class Room {
     constructor(name, io, owner) {
@@ -7,10 +8,12 @@ class Room {
         this.name = name;
         this.users = [];
         this.broadcast = io.to(name);
+        this.maxUsers = 10;
     }
 
     onRoomReady() {
-        console.log("New room created : " + this.name);
+        this.logProcessDone();
+        this.log("New room created : " + this.name);
         const broadcastMessage = new Message(this.owner, "roomCreated", this.name, this.name);
         this.broadcast.emit('roomCreated', broadcastMessage.toJsonString());
     }
@@ -50,7 +53,7 @@ class Room {
     }
 
     addUser(user) {
-        console.log("New user entered the room " + this.name);
+        this.log("New user entered the room " + this.name);
         this.users.push(user);
         console.log(this.users);
         const broadcastMessage = new Message(user, "userEnter", this.users, this.name);
@@ -58,7 +61,7 @@ class Room {
     }
 
     removeUser(user){
-        console.log("User removed from the room " + this.name);
+        this.log("User removed from the room " + this.name);
         this.users.splice(this.users.indexOf(user),1);
         console.log(this.users);
         const broadcastMessage = new Message(user, "userLeave", this.users, this.name);
@@ -66,7 +69,7 @@ class Room {
     }
 
     newMessage(user, message) {
-        console.log("User " + user + " sent a message : " + message);
+        this.log("User " + user + " sent a message : " + message);
         const jsonMessage = {
             author: user,
             date: Date.now(),
@@ -80,6 +83,14 @@ class Room {
     isMessageForRoom(msg){
         const message = MessageHandler.testAndExtractFromJson(msg);
         return message.room === this.name;
+    }
+
+    log(text){
+        console.log(colors.consoleColors.RoomColor, text);
+    }
+
+    logProcessDone(){
+        console.log(colors.consoleColors.RoomDoneColor, " DONE ");
     }
 }
 
