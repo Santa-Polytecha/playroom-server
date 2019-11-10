@@ -5,54 +5,73 @@ class Room {
     constructor(name, io, owner) {
         this.owner = owner;
         this.name = name;
-        this.users = [owner];
-        this.namespace = io.of('/' + name);
+        this.users = [];
+        this.io = io;
+        this.namespace = io.of("/" + name);
+        this.broadcast = io.to(name);
+        this.room = io.sockets.in(name);
     }
 
     listen() {
-        this.namespace.on('join', (socket) => {
-            const username = socket.username;
+
+        this.io.on('join', (username) => {
             this.addUser(username);
+        });
 
-            //leave room
-            socket.on('leave', (msg) => {
-                this.removeUser(username);
-            });
+        this.io.on('leave', (username) => {
+            this.removeUser(username);
+        });
 
-            //chat messages
-            socket.on('chat', (msg) => {
-                const chatMessage = MessageHandler.testAndExtractFromJson(msg);
-                this.newMessage(username,chatMessage.content)
-            });
+        this.io.on('chat', (msg) => {
+            const chatMessage = MessageHandler.testAndExtractFromJson(msg);
+            this.newMessage(chatMessage.user, chatMessage.content)
         });
 
         this.onRoomReady();
+        // this.addUser(this.owner);
     }
 
-    onRoomReady(){
-        console.log("New room created.");
+    onRoomReady() {
+        console.log("New room created : " + this.name);
         const broadcastMessage = new Message(this.owner, "roomCreated", this.name);
-        this.namespace.emit(broadcastMessage.toJsonString());
+        this.broadcast.emit('roomCreated', broadcastMessage.toJsonString());
     }
 
-    addUser(user){
+    onJoinRoom(socket) {
+        const username = socket.username;
+        this.addUser(username);
+    }
+
+    onLeaveRoom(socket) {
+        const username = socket.username;
+        this.removeUser(username);
+    }
+
+    addUser(user) {
         console.log("New user entered the room " + this.name);
         this.users.push(user);
+        console.log(this.users);
         const broadcastMessage = new Message(user, "userEnter", this.users);
-        this.namespace.emit(broadcastMessage.toJsonString());
+        this.broadcast.emit("userEnter", broadcastMessage.toJsonString());
     }
 
-    removeUser(user){
+    removeUser(user) {
         console.log("User entered the room " + this.name);
-        this.users.splice(this.users.indexOf(user),1);
+        this.users.splice(this.users.indexOf(user), 1);
         const broadcastMessage = new Message(user, "userLeave", this.users);
-        this.namespace.emit(broadcastMessage.toJsonString());
+        this.broadcast.emit("userLeave", broadcastMessage.toJsonString());
     }
 
-    newMessage(user, message){
+    newMessage(user, message) {
         console.log("User " + user + " sent a message : " + message);
-        const broadcastMessage = new Message(user, "newMessage", message);
-        this.namespace.emit(broadcastMessage.toJsonString());
+        const jsonMessage = {
+            author: user,
+            date: Date.now(),
+            content: message
+        };
+        const jsonStringMessage = JSON.stringify(jsonMessage);
+        const broadcastMessage = new Message(user, "newMessage", jsonStringMessage);
+        this.broadcast.emit("newMessage", broadcastMessage.toJsonString());
     }
 }
 

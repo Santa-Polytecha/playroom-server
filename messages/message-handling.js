@@ -18,7 +18,7 @@ exports.testAndExtractFromJson = function(strMessage){
     if(body.type.length === 0)
         throw "Message type could not be found!";
 
-    if(body.content.length === 0)
+    if(body.content === undefined)
         throw "Message main content could not be found!";
 
     if(!MessageTypesHandler.hasType())
