@@ -55,9 +55,9 @@ class Room {
         this.broadcast.emit("userEnter", broadcastMessage.toJsonString());
     }
 
-    removeUser(user) {
-        console.log("User entered the room " + this.name);
-        this.users.splice(this.users.indexOf(user), 1);
+    removeUser(user){
+        console.log("User removed from the room " + this.name);
+        this.users.splice(this.users.indexOf(user),1);
         const broadcastMessage = new Message(user, "userLeave", this.users);
         this.broadcast.emit("userLeave", broadcastMessage.toJsonString());
     }

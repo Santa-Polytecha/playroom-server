@@ -22,7 +22,7 @@ exports.testAndExtractFromJson = function(strMessage){
         throw "Message main content could not be found!";
 
     if(!MessageTypesHandler.hasType())
-        throw "Message type is not supported!"
+        throw "Message type is not supported!";
 
     return new Message(body.user, parseInt(body.type), body.content)
 };
