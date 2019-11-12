@@ -12,7 +12,7 @@ exports.testAndExtractFromJson = function(strMessage){
     if(body.length === 0)
         throw "Message is empty!";
 
-    if(body.user.length === 0)
+    if(body.user === undefined)
         throw "Message sender could not be found!";
 
     if(body.type.length === 0)

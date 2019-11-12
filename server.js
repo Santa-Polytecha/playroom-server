@@ -23,6 +23,8 @@ const io = require('./socket.io.js');
 server.listen(PORT, function() {
     io.initialize(server);
 
+    console.log();
+    console.log(colors.consoleColors.ServerDoneColor, " DONE ")
     console.log(colors.consoleColors.ServerColor, `Listening on port ${PORT}...`)
     console.log(colors.consoleColors.ServerColor, "           __________.__");
     console.log(colors.consoleColors.ServerColor, "           \\______   \\  | _____  ___.__._______  ____   ____   _____");

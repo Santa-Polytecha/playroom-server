@@ -1,7 +1,8 @@
 exports.types = {
-    //room handling
+    //lobby handling
     create: 'create',
     join: 'join',
+    checkAuth: 'checkAuth',
 
     //room users handling
     userEnter: 'userEnter',
