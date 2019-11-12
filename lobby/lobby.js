@@ -36,7 +36,11 @@ exports.listenForRoomCreation = function (io) {
                 socket.join(roomName);
                 let room = Rooms.findRoom(roomName);
                 if(room === undefined){
-                    const broadcastMessage = new Message(socket.username, "roomError", `Unknown room name ${roomName}`, this.name);
+                    const broadcastMessage = new Message(socket.username, "roomError",
+                        JSON.stringify({
+                            error: "room",
+                            message: `Unknown room name ${roomName}`
+                        }), this.name);
                     socket.emit('roomError',broadcastMessage.toJsonString());
                 }
                 else

@@ -17,7 +17,7 @@ class Room {
         this.logProcessDone();
         this.log("New room created : " + this.name);
         const username = socket.username;
-        this.owner = new User(username,socket.id);
+        this.owner = new User(username, socket.id);
         this.userSubscribers(socket);
         this.addUser(username, socket.id);
         this.emitMessage(this.owner.name, "roomCreated", [this.owner], socket);
@@ -73,7 +73,7 @@ class Room {
         console.log(this.users);
         this.emitBroadcastMessage(username, "userLeave", this.users);
 
-        if (username === this.owner.name && socketId === this.owner.socketId){
+        if (username === this.owner.name && socketId === this.owner.socketId) {
             this.changeOwner();
         }
     }
@@ -82,7 +82,11 @@ class Room {
         if (this.users.find(user => {
             return user.name === username
         }) !== undefined) {
-            this.emitMessage(username, "roomError", errors.exceptions.USERNAME_ALREADY_USED, socket);
+            this.emitMessage(username, "roomError",
+                JSON.stringify({
+                    error: "user",
+                    message: errors.exceptions.USERNAME_ALREADY_USED
+            }), socket);
             return true;
         }
         return false;
@@ -90,7 +94,11 @@ class Room {
 
     isRoomAlreadyFull(username, socket) {
         if (this.users.length === this.maxUsers) {
-            this.emitMessage(username, "roomError", errors.exceptions.ROOM_IS_FULL, socket);
+            this.emitMessage(username, "roomError",
+                JSON.stringify({
+                    error: "user",
+                    message: errors.exceptions.ROOM_IS_FULL
+                }), socket);
         }
     }
 
@@ -147,7 +155,7 @@ class Room {
         }
     }
 
-    unsubscribeUser(socket){
+    unsubscribeUser(socket) {
         //TODO doesn't work removeListner or off function doesn't seem to exist
         socket.off("disconnect", function () {
 
@@ -160,15 +168,15 @@ class Room {
         });
     }
 
-    toJson(){
+    toJson() {
         return {
-            name : this.name,
-            owner : this.owner,
+            name: this.name,
+            owner: this.owner,
             users: this.users
         }
     }
 
-    toJsonString(){
+    toJsonString() {
         return JSON.stringify(this.toJson());
     }
 }
