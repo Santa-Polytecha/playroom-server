@@ -5,7 +5,7 @@ const RoomNameGenerator = require('../room/room-name-generator.js');
 const Rooms = require('../room/rooms.js');
 const colors = require('../tools/consoleColors.js');
 
-extractMessage = function(msg){
+const extractMessage = function(msg){
 
 };
 

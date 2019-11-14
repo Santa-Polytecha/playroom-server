@@ -60,10 +60,10 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function() {
         for (var i = 0; i < users.length; i++) {
             // remove user from users list
-            if (users[i] == socket.username) {
+            if (users[i] === socket.username) {
                 users.splice(i, 1);
-            };
-        };
+            }
+        }
         console.log(socket.username + ' has disconnected.');
 
         // submit updated users list to all clients
@@ -78,7 +78,7 @@ io.on('connection', function (socket) {
 
             // submit new drawer event to the random user in userslist
             io.in(users[x]).emit('drawer', users[x]);
-        };
+        }
     });
 
     socket.on('drawer', function(name) {
