@@ -8,5 +8,10 @@
     "node-env-file": "^0.1.8",
     "socket.io": "^2.3.0"
   },
-  "author": "Lea, Val, Antoine"
+  "author": "Lea, Val, Antoine",
+  "devDependencies": {
+    "karma": "^4.4.1",
+    "karma-jasmine": "^2.0.1",
+    "karma-phantomjs-launcher": "^1.0.4"
+  }
 }
