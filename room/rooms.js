@@ -28,8 +28,21 @@ exports.userInRoom = function(user){
   return false;
 };
 
+exports.findUserRoomBySocketId = function(socketId){
+    let found = null;
+    rooms.forEach(room => {
+        const res = room.users.find(us => {
+            return us.socketId === socketId
+        });
+        if(res != null)
+            found = room
+    });
+
+  return found;
+};
+
 exports.findRoom = function (roomName) {
     return rooms.find(r =>{
-        return r.name === parseInt(roomName);
+        return r.name === roomName;
     })
 };

@@ -17,7 +17,7 @@ class Room {
         this.log("New room created : " + this.name);
         const username = socket.username;
         this.owner = new User(username, socket.id);
-        this.userSubscribers(socket);
+        //this.userSubscribers(socket);
         this.addUser(username, socket.id);
         MessageEmitter.emitMessage(this.owner.name, "roomCreated", [this.owner], socket, this.name);
     }
@@ -26,7 +26,7 @@ class Room {
         socket.join(this.name, () => {
             const username = socket.username;
             if (!this.isUserAlreadyInRoom(username, socket) && !this.isRoomAlreadyFull(username, socket)) {
-                this.userSubscribers(socket);
+                this.onDisconnect(socket);
                 this.addUser(username, socket.id);
                 MessageEmitter.emitMessage(socket.username, "roomJoined", this.toJsonString(), socket, this.name);
             }
@@ -34,17 +34,10 @@ class Room {
     }
 
     onLeave(socket) {
-        const username = socket.username;
-        this.removeUser(username);
-        // this.unsubscribeUser(socket);
+        this.removeUser(socket.username);
     }
 
-    userSubscribers(socket) {
-        socket.on("userLeave", (msg) => {
-            const message = JSON.parse(msg);
-            this.onLeave(message.content.name);
-        });
-
+    onDisconnect(socket) {
         socket.on("disconnect", () => {
             socket.leave(this.name, () => {
                 console.log("User disconnected.");
@@ -86,7 +79,7 @@ class Room {
                 JSON.stringify({
                     error: "user",
                     message: errors.exceptions.USERNAME_ALREADY_USED
-            }), socket, this.name);
+                }), socket, this.name);
             return true;
         }
         return false;
@@ -126,19 +119,6 @@ class Room {
 
     logProcessDone() {
         console.log(colors.consoleColors.RoomDoneColor, " DONE ");
-    }
-
-    unsubscribeUser(socket) {
-        //TODO doesn't work removeListner or off function doesn't seem to exist
-        socket.off("disconnect", function () {
-
-        });
-        socket.off("chat", function () {
-
-        });
-        socket.off("leaveRoom", function () {
-
-        });
     }
 
     toJson() {

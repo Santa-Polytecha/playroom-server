@@ -24,5 +24,5 @@ exports.testAndExtractFromJson = function(strMessage){
     if(!MessageTypesHandler.hasType())
         throw "Message type is not supported!";
 
-    return new Message(body.user, parseInt(body.type), body.content)
+    return new Message(body.user, parseInt(body.type), body.content, body.room)
 };
