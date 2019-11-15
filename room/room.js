@@ -1,5 +1,4 @@
-const Message = require('../messages/message.js');
-const MessageHandler = require("../messages/message-handling");
+const MessageEmitter = require("../messages/message-emitter");
 const User = require("../users/user");
 const colors = require('../tools/consoleColors.js');
 const errors = require('./error-messages.js');
@@ -9,8 +8,8 @@ class Room {
         this.owner = owner;
         this.name = name;
         this.users = [];
-        this.broadcast = io.to(name);
         this.maxUsers = 10;
+        MessageEmitter.initialize(io);
     }
 
     onCreate(socket) {
@@ -20,7 +19,7 @@ class Room {
         this.owner = new User(username, socket.id);
         this.userSubscribers(socket);
         this.addUser(username, socket.id);
-        this.emitMessage(this.owner.name, "roomCreated", [this.owner], socket);
+        MessageEmitter.emitMessage(this.owner.name, "roomCreated", [this.owner], socket, this.name);
     }
 
     onJoin(socket) {
@@ -29,7 +28,7 @@ class Room {
             if (!this.isUserAlreadyInRoom(username, socket) && !this.isRoomAlreadyFull(username, socket)) {
                 this.userSubscribers(socket);
                 this.addUser(username, socket.id);
-                this.emitMessage(socket.username, "roomJoined", this.toJsonString(), socket);
+                MessageEmitter.emitMessage(socket.username, "roomJoined", this.toJsonString(), socket, this.name);
             }
         });
     }
@@ -41,8 +40,9 @@ class Room {
     }
 
     userSubscribers(socket) {
-        socket.on("userLeave", () => {
-            this.onLeave(socket);
+        socket.on("userLeave", (msg) => {
+            const message = JSON.parse(msg);
+            this.onLeave(message.content.name);
         });
 
         socket.on("disconnect", () => {
@@ -52,18 +52,18 @@ class Room {
             });
         });
 
-        socket.on("chat", msg => {
-            console.log("Chat message");
-            let message = MessageHandler.testAndExtractFromJson(msg);
-            this.newMessage(socket.username, message.content);
-        });
+        // socket.on("chat", msg => {
+        //     console.log("Chat message");
+        //     let message = MessageHandler.testAndExtractFromJson(msg);
+        //     this.newMessage(socket.username, message.content);
+        // });
     }
 
     addUser(username, socketId) {
         this.log("New user entered the room " + this.name);
         this.users.push(new User(username, socketId));
         console.log(this.users);
-        this.emitBroadcastMessage(username, "userEnter", this.users);
+        MessageEmitter.emitBroadcastMessage(username, "userEnter", this.users, this.name);
         return true;
     }
 
@@ -71,7 +71,7 @@ class Room {
         this.log("User removed from the room " + this.name);
         this.users.splice(this.users.indexOf(this.users.find(us => us.name === username)), 1);
         console.log(this.users);
-        this.emitBroadcastMessage(username, "userLeave", this.users);
+        MessageEmitter.emitBroadcastMessage(username, "userLeave", this.users, this.name);
 
         if (username === this.owner.name && socketId === this.owner.socketId) {
             this.changeOwner();
@@ -82,11 +82,11 @@ class Room {
         if (this.users.find(user => {
             return user.name === username
         }) !== undefined) {
-            this.emitMessage(username, "roomError",
+            MessageEmitter.emitMessage(username, "roomError",
                 JSON.stringify({
                     error: "user",
                     message: errors.exceptions.USERNAME_ALREADY_USED
-            }), socket);
+            }), socket, this.name);
             return true;
         }
         return false;
@@ -94,11 +94,11 @@ class Room {
 
     isRoomAlreadyFull(username, socket) {
         if (this.users.length === this.maxUsers) {
-            this.emitMessage(username, "roomError",
+            MessageEmitter.emitMessage(username, "roomError",
                 JSON.stringify({
                     error: "user",
                     message: errors.exceptions.ROOM_IS_FULL
-                }), socket);
+                }), socket, this.name);
         }
     }
 
@@ -106,7 +106,7 @@ class Room {
         const index = Math.floor(Math.random() * (this.users.length - 1));
         this.owner = this.users[index];
         this.log("Owner left the room. New owner : ", this.owner.name);
-        this.emitBroadcastMessage(this.owner.name, "newMessage", this.owner);
+        MessageEmitter.emitBroadcastMessage(this.owner.name, "newMessage", this.owner, this.name);
     }
 
     newMessage(user, message) {
@@ -117,12 +117,7 @@ class Room {
             content: message
         };
         const jsonStringMessage = JSON.stringify(jsonMessage);
-        this.emitBroadcastMessage(user, "newMessage", jsonStringMessage);
-    }
-
-    isMessageForRoom(msg) {
-        const message = MessageHandler.testAndExtractFromJson(msg);
-        return message.room === this.name;
+        MessageEmitter.emitBroadcastMessage(user, "newMessage", jsonStringMessage, this.name);
     }
 
     log(text) {
@@ -131,28 +126,6 @@ class Room {
 
     logProcessDone() {
         console.log(colors.consoleColors.RoomDoneColor, " DONE ");
-    }
-
-    logError(text) {
-        console.log(colors.consoleColors.Error, text);
-    }
-
-    emitBroadcastMessage(user, type, message) {
-        try {
-            const broadcastMessage = new Message(user, type, message, this.name);
-            this.broadcast.emit(type, broadcastMessage.toJsonString());
-        } catch (e) {
-            this.logError(e)
-        }
-    }
-
-    emitMessage(user, type, message, socket) {
-        try {
-            const broadcastMessage = new Message(user, type, message, this.name);
-            socket.emit(type, broadcastMessage.toJsonString());
-        } catch (e) {
-            this.logError(e)
-        }
     }
 
     unsubscribeUser(socket) {
