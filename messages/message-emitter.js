@@ -15,6 +15,13 @@ exports.logError = function (text) {
     console.log(colors.consoleColors.Error, text);
 };
 
+/**
+ *
+ * @param user username of the sender of the message ?
+ * @param type topic on which to send the message
+ * @param message message / data
+ * @param roomName
+ */
 exports.emitBroadcastMessage = function (user, type, message, roomName) {
     try {
         const broadcastMessage = new Message(user, type, message, roomName);
@@ -24,6 +31,14 @@ exports.emitBroadcastMessage = function (user, type, message, roomName) {
     }
 };
 
+/**
+ *
+ * @param user username of the sender of the message ?
+ * @param type topic on which to send the message
+ * @param message message / data
+ * @param socket destination socket 
+ * @param roomName
+ */
 exports.emitMessage = function (user, type, message, socket, roomName) {
     try {
         const broadcastMessage = new Message(user, type, message, roomName);
