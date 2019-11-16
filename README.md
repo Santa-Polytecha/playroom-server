@@ -33,8 +33,6 @@ First, we have what we call the Lobby where every users connect by default.
 Then we have a room. It holds logic for users in the same room given a socket room name.
 And finally we have a game. An instance of a specific game for a specific room.
 
-=======
-### Features description
 
 | Feature           | Description                                                                                             |
 |-------------------|---------------------------------------------------------------------------------------------------------|

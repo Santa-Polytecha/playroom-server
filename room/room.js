@@ -19,6 +19,7 @@ class Room {
         this.log("New room created : " + this.name);
         const username = socket.username;
         this.owner = new User(username, socket.id);
+        this.onDisconnect(socket);
         this.addUser(socket);
         MessageEmitter.emitMessage(this.owner.name, "roomCreated", [this.owner], socket, this.name);
     }
@@ -54,8 +55,9 @@ class Room {
         this.users.push(new User(username, socketId));
         this.addSocket(socket);
         console.log(this.users);
-        MessageEmitter.emitBroadcastMessage(username, "userEnter", this.users, this.name);
-        return true;
+        if(this.users.length > 0){
+            MessageEmitter.emitBroadcastMessage(username, "userEnter", this.users, this.name);
+        }
     }
 
     removeUser(socket) {
@@ -65,10 +67,12 @@ class Room {
         this.users.splice(this.users.indexOf(this.users.find(us => us.name === username)), 1);
         this.removeSocket(socket);
         console.log(this.users);
-        MessageEmitter.emitBroadcastMessage(username, "userLeave", this.users, this.name);
+        if(this.users.length > 0){
+            MessageEmitter.emitBroadcastMessage(username, "userLeave", this.users, this.name);
 
-        if (username === this.owner.name && socketId === this.owner.socketId) {
-            this.changeOwner();
+            if (username === this.owner.name && socketId === this.owner.socketId) {
+                this.changeOwner();
+            }
         }
     }
 
