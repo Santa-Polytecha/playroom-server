@@ -11,4 +11,4 @@ exports.consoleColors = {
     Error : colors.references.FgRed + '%s' + colors.references.Reset,
     ErrorTextColor : colors.references.FgRed + '%s' + colors.references.Reset,
     ErrorTitleColor : colors.references.BgRed + '%s' + colors.references.Reset,
-}
+};
