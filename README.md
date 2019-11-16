@@ -1,5 +1,6 @@
 ## Playroom Server
-Building Multiplayer Games with Node.js and Socket.IO
+Building Multiplayer Games with Node.js and Socket.IO.
+Implementing Socket.IO in an OOP environment with ES6 classes.
 
 ### Introduction
 This project aims to experiment with Node.js and the Socket.IO library in order to create a real-time gaming experience.
@@ -16,12 +17,23 @@ You can add your own .env file with your own port configuration.
     
     > ENV_PORT = 3002
     
+
 ### Technologies
 
 - **Node.js** - Node provides the foundation for the back-end portion of the game, and allows the use of the Socket.IO library.
 
 - **Socket.IO** - Socket.IO makes it possible and simple to open a real-time, bidirectional communication channel between a web browser (if it supports websockets protocol) and a server.
 
+This is a socket-io and node-js object oriented code structure approach in order to encapsulate room and games logic.
+
+### Features description
+
+We have three logical layers to the user experience. 
+First, we have what we call the Lobby where every users connect by default.
+Then we have a room. It holds logic for users in the same room given a socket room name.
+And finally we have a game. An instance of a specific game for a specific room.
+
+=======
 ### Features description
 
 | Feature           | Description                                                                                             |
