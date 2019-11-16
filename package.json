@@ -1,0 +1,12 @@
+{
+  "name": "playroom-app",
+  "version": "1.0.0",
+  "description": "A room based project",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "node-env-file": "^0.1.8",
+    "socket.io": "^2.3.0"
+  },
+  "author": "Lea, Val, Antoine"
+}
