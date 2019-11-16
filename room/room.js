@@ -1,7 +1,7 @@
 const MessageEmitter = require("../messages/message-emitter");
 const User = require("../users/user");
 const colors = require('../tools/consoleColors.js');
-const errors = require('./error-messages.js');
+const errors = require('../messages/error-messages.js');
 
 class Room {
     constructor(name, io, owner) {
