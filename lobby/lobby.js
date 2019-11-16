@@ -1,10 +1,11 @@
 const Room = require('../room/room.js');
+const GameFactory = require('../game/game-factory');
+const Games = require('../game/games');
 const MessageHandler = require('../messages/message-handling.js');
 const Message = require('../messages/message.js');
 const RoomNameGenerator = require('../room/room-name-generator.js');
 const Rooms = require('../room/rooms.js');
 const colors = require('../tools/consoleColors.js');
-const Subscription = require('../room/subscription');
 
 exports.listenForRoomCreation = function (io) {
     io.on('connection', (socket) => {
@@ -19,6 +20,7 @@ subscribeToLobbyListeners = function(socket, io){
     subscribeRoomLeft(socket, io);
     subscribeCheckAuth(socket);
     subscribeRoomDeleted(socket);
+    subscribeGameStarted(socket, io);
 };
 
 subscribeRoomCreated = function (socket, io) {
@@ -28,11 +30,8 @@ subscribeRoomCreated = function (socket, io) {
             const roomName = RoomNameGenerator.generateName();
             socket.username = message.user;
             socket.join(roomName);
-            const room = new Room(roomName, //TODO generate unique room name
-                io, message.user);
+            const room = new Room(roomName, io, message.user);
             room.onCreate(socket);
-            const subscription = new Subscription(socket);
-            subscription.bind();
             Rooms.addRoom(room)
         } catch (e) {
             console.error(e);
@@ -96,6 +95,20 @@ subscribeRoomLeft = function (socket, io) {
 
             //user subscribe to Lobby listeners
             subscribeToLobbyListeners(socket, io);
+        }
+    })
+};
+
+subscribeGameStarted = function (socket, io) {
+    socket.on("startGame", function (msg) {
+        let message = MessageHandler.testAndExtractFromJson(msg);
+        const roomName = message.room;
+        const gameName = message.content.gameName;
+        let room = Rooms.findRoom(roomName);
+        if (room !== undefined) {
+            const game = GameFactory.createGameInstance(room, io, gameName);
+            Games.addGame(game);
+            room.initGame(game);
         }
     })
 };
