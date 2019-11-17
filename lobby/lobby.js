@@ -103,7 +103,7 @@ subscribeGameStarted = function (socket, io) {
     socket.on("startGame", function (msg) {
         let message = MessageHandler.testAndExtractFromJson(msg);
         const roomName = message.room;
-        const gameName = message.content.gameName;
+        const gameName = message.content;
         let room = Rooms.findRoom(roomName);
         if (room !== undefined) {
             const game = GameFactory.createGameInstance(room, io, gameName);
