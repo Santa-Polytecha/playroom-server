@@ -121,9 +121,8 @@ class Room {
     }
 
     changeOwner() {
-        const index = Math.floor(Math.random() * (this.users.length - 1));
-        this.owner = this.users[index];
-        this.log("Owner left the room. New owner : ", this.owner.name);
+        this.owner = this.users[0];
+        this.log("Owner left the room. New owner : " + this.owner.name);
         MessageEmitter.emitBroadcastMessage(this.owner.name, "changeOwner", this.owner, this.name);
     }
 

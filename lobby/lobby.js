@@ -83,9 +83,9 @@ subscribeRoomLeft = function (socket, io) {
     socket.on("userLeave", function (msg) {
         let message = MessageHandler.testAndExtractFromJson(msg);
         const roomName = message.room;
-        const socketId = message.content.socketId;
+        const socketid = message.content.id;
         let room = Rooms.findRoom(roomName);
-        if (room !== undefined && socketId === socket.id) {
+        if (room !== undefined && socketid === socket.id) {
 
             //user leave the room
             room.onLeave(socket);
