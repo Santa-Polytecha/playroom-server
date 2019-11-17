@@ -30,6 +30,9 @@ class Room {
             if (!this.isUserAlreadyInRoom(username, socket) && !this.isRoomAlreadyFull(username, socket)) {
                 this.onDisconnect(socket);
                 this.addUser(socket);
+                if(this.game !== null){
+                    this.game.joinGameLater(socket);
+                }
                 MessageEmitter.emitMessage(socket.username, "roomJoined", this.toJsonString(), socket, this.name);
             }
         });
@@ -149,7 +152,8 @@ class Room {
         return {
             name: this.name,
             owner: this.owner,
-            users: this.users
+            users: this.users,
+            gameStarted: this.game !== null
         }
     }
 

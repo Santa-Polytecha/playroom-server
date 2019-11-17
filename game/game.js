@@ -35,6 +35,10 @@ class Game {
 
     }
 
+    joinGameLater(socket){
+        this.bindToGameEvents(socket);
+    }
+
     createRound() {
         console.log('Creating new round at Game: ', this.gameName);
         const newRound = new Round(this.gameName, this.rounds.length, this.io);
