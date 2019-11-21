@@ -1,7 +1,7 @@
 const MessageEmitter = require("../messages/message-emitter");
 const User = require("../users/user");
 const colors = require('../tools/consoleColors.js');
-const errors = require('./error-messages.js');
+const errors = require('../messages/error-messages.js');
 
 class Room {
     constructor(name, io, owner) {
@@ -9,6 +9,8 @@ class Room {
         this.name = name;
         this.users = [];
         this.maxUsers = 10;
+        this.sockets = [];
+        this.game = null;
         MessageEmitter.initialize(io);
     }
 
@@ -17,8 +19,8 @@ class Room {
         this.log("New room created : " + this.name);
         const username = socket.username;
         this.owner = new User(username, socket.id);
-        //this.userSubscribers(socket);
-        this.addUser(username, socket.id);
+        this.onDisconnect(socket);
+        this.addUser(socket);
         MessageEmitter.emitMessage(this.owner.name, "roomCreated", [this.owner], socket, this.name);
     }
 
@@ -27,14 +29,17 @@ class Room {
             const username = socket.username;
             if (!this.isUserAlreadyInRoom(username, socket) && !this.isRoomAlreadyFull(username, socket)) {
                 this.onDisconnect(socket);
-                this.addUser(username, socket.id);
+                this.addUser(socket);
+                if(this.game !== null){
+                    this.game.joinGameLater(socket);
+                }
                 MessageEmitter.emitMessage(socket.username, "roomJoined", this.toJsonString(), socket, this.name);
             }
         });
     }
 
     onLeave(socket) {
-        this.removeUser(socket.username);
+        this.removeUser(socket);
     }
 
     onDisconnect(socket) {
@@ -44,31 +49,54 @@ class Room {
                 this.onLeave(socket);
             });
         });
-
-        // socket.on("chat", msg => {
-        //     console.log("Chat message");
-        //     let message = MessageHandler.testAndExtractFromJson(msg);
-        //     this.newMessage(socket.username, message.content);
-        // });
     }
 
-    addUser(username, socketId) {
+    addUser(socket) {
+        const socketId = socket.id;
+        const username = socket.username;
         this.log("New user entered the room " + this.name);
         this.users.push(new User(username, socketId));
+        this.addSocket(socket);
         console.log(this.users);
-        MessageEmitter.emitBroadcastMessage(username, "userEnter", this.users, this.name);
-        return true;
+        if(this.users.length > 0){
+            MessageEmitter.emitBroadcastMessage(username, "userEnter", this.users, this.name);
+        }
     }
 
-    removeUser(username, socketId) {
+    removeUser(socket) {
+        const socketId = socket.id;
+        const username = socket.username;
         this.log("User removed from the room " + this.name);
         this.users.splice(this.users.indexOf(this.users.find(us => us.name === username)), 1);
+        this.removeSocket(socket);
         console.log(this.users);
-        MessageEmitter.emitBroadcastMessage(username, "userLeave", this.users, this.name);
+        if(this.users.length > 0){
+            MessageEmitter.emitBroadcastMessage(username, "userLeave", this.users, this.name);
 
-        if (username === this.owner.name && socketId === this.owner.socketId) {
-            this.changeOwner();
+            if (username === this.owner.name && socketId === this.owner.socketId) {
+                this.changeOwner();
+            }
         }
+    }
+
+    addSocket(socket){
+        this.sockets.push(socket);
+    }
+
+    removeSocket(socket){
+        this.sockets.splice(this.sockets.indexOf(this.sockets.find(so => so.id === socket.id)), 1);
+    }
+
+    initGame(game){
+        this.game = game;
+        this.bindSocketsToGame();
+        MessageEmitter.emitBroadcastMessage(this.owner.name, "gameStarted", { gameName: this.game.gameName, gameId: this.game.gameId}, this.name);
+    }
+
+    bindSocketsToGame(){
+        this.sockets.forEach(socket => {
+            this.game.bindToGameEvents(socket);
+        })
     }
 
     isUserAlreadyInRoom(username, socket) {
@@ -96,10 +124,9 @@ class Room {
     }
 
     changeOwner() {
-        const index = Math.floor(Math.random() * (this.users.length - 1));
-        this.owner = this.users[index];
-        this.log("Owner left the room. New owner : ", this.owner.name);
-        MessageEmitter.emitBroadcastMessage(this.owner.name, "newMessage", this.owner, this.name);
+        this.owner = this.users[0];
+        this.log("Owner left the room. New owner : " + this.owner.name);
+        MessageEmitter.emitBroadcastMessage(this.owner.name, "changeOwner", this.owner, this.name);
     }
 
     newMessage(user, message) {
@@ -125,7 +152,8 @@ class Room {
         return {
             name: this.name,
             owner: this.owner,
-            users: this.users
+            users: this.users,
+            gameStarted: this.game !== null
         }
     }
 
